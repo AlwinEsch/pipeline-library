@@ -17,7 +17,7 @@ def call(Map addonParams = [:])
 		'windows-i686': 'windows/win32',
 		'windows-x86_64': 'windows/x64'
 	]
-	def PLATFORMS_VALID_CURRENT = [
+	def PLATFORMS_VALID_MATRIX = [
 		'android-armv7': 'android',
 		'android-aarch64': 'android-arm64-v8a',
 		'tvos-aarch64': 'tvos',
@@ -27,14 +27,30 @@ def call(Map addonParams = [:])
 		'windows-i686': 'windows/win32',
 		'windows-x86_64': 'windows/x64'
 	]
+	def PLATFORMS_VALID_CURRENT = [
+		'android-x86': 'androidx86',
+		'android-x86_64' : 'android-x86_64',
+		'android-armv7': 'android',
+		'android-aarch64': 'android-arm64-v8a',
+		'tvos-aarch64': 'tvos',
+		'ios-aarch64': 'ios',
+		'osx-x86_64': 'osx64',
+		'ubuntu-ppa': 'linux',
+		'windows-i686': 'windows/win32',
+		'windows-x86_64': 'windows/x64',
+		'new-pseudo-os-x86_128': 'pseudo-os-x86_128'
+	]
 	def PLATFORMS_VALID = [:]
 	def PLATFORMS_DEPLOY = [
+		'android-x86',
+		'android-x86_64',
 		'android-armv7',
 		'android-aarch64',
 		'osx-x86_64',
 		'ubuntu-ppa',
 		'windows-i686',
-		'windows-x86_64'
+		'windows-x86_64',
+		'pseudo-os-x86_128'
 	]
 	def UBUNTU_DISTS = [
 		'eoan',
@@ -45,6 +61,7 @@ def call(Map addonParams = [:])
 	def VERSIONS_VALID = [
 		'Leia': 'leia',
 		'Matrix': 'matrix',
+		'Nemesis': 'nemesis'
 	]
 	def PPAS_VALID = [
 		'nightly': 'ppa:team-xbmc/xbmc-nightly',
@@ -54,7 +71,8 @@ def call(Map addonParams = [:])
 	]
 	def PPA_VERSION_MAP = [
 		'Leia': 'stable',
-		'Matrix': 'nightly',
+		'Matrix': 'stable',
+		'Nemesis': 'nigthly'.
 	]
 
 	properties([
@@ -62,7 +80,7 @@ def call(Map addonParams = [:])
 		disableConcurrentBuilds(),
 		disableResume(),
 		durabilityHint('PERFORMANCE_OPTIMIZED'),
-		pipelineTriggers(env.BRANCH_NAME == 'Matrix' ? [cron('@weekly')] : null),
+		pipelineTriggers(env.BRANCH_NAME == 'Nemesis' ? [cron('@weekly')] : null),
 		[$class: 'RebuildSettings', autoRebuild: false, rebuildDisabled: true],
 		[$class: 'ThrottleJobProperty', categories: [], limitOneJobWithMatchingParams: false, maxConcurrentPerNode: 0, maxConcurrentTotal: 1, paramsToUseForLimit: '', throttleEnabled: true, throttleOption: 'category'],
 		parameters([
@@ -84,6 +102,10 @@ def call(Map addonParams = [:])
 	if (version == "Leia")
 	{
 		PLATFORMS_VALID = PLATFORMS_VALID_LEIA
+	}
+	else if (version == "Matrix")
+	{
+		PLATFORMS_VALID = PLATFORMS_VALID_MATRIX
 	}
 	else
 	{
@@ -126,7 +148,7 @@ def call(Map addonParams = [:])
 						stage("prepare (${platform})")
 						{
 							pwd = pwd()
-							kodiBranch = version == "Matrix" ? "master" : version
+							kodiBranch = version == "Nemesis" ? "master" : version
 							checkout([
 								changelog: false,
 								scm: [
